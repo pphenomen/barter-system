@@ -25,6 +25,7 @@ class MyAdsView(ListView):
     template_name = 'ads/my_ads.html'
     context_object_name = 'ads'
     ordering = ['-created_at']
+    paginate_by = 2
 
     def get_queryset(self):
         """Фильтрует объявления по текущему пользователю"""
@@ -36,13 +37,20 @@ class AdListView(ListView):
     template_name = 'ads/ad_list.html'
     context_object_name = 'ads'
     ordering = ['-created_at']
+    paginate_by = 2
+    
+    def get_queryset(self):
+        qs = Ad.objects.all().order_by('-created_at')
+        if self.request.user.is_authenticated:
+            qs = qs.exclude(user=self.request.user)
+        return qs
 
 class AdCreateView(CreateView):
     """Создание нового объявления"""
     model = Ad
     form_class = AdForm
     template_name = 'ads/ad_form.html'
-    success_url = reverse_lazy('ad_list')
+    success_url = reverse_lazy('my_ads')
 
     def dispatch(self, request, *args, **kwargs):
         """Ограничивает доступ только для авторизованных пользователей"""
@@ -87,7 +95,8 @@ class ExchangeProposalCreateView(CreateView):
     model = ExchangeProposal
     form_class = ExchangeProposalForm
     template_name = 'exchanges/exchange_form.html'
-    success_url = '/'  
+    success_url = '/'
+    paginate_by = 2  
 
     def form_valid(self, form):
         """Устанавливает статус 'Ожидает' перед сохранением предложения"""
@@ -154,6 +163,7 @@ class SentProposalsView(ListView):
     template_name = 'exchanges/exchange_sent.html'
     context_object_name = 'proposals'
     ordering = ['-created_at']
+    paginate_by = 2
 
     def get_queryset(self):
         """Фильтрует предложения, где текущий пользователь является получателем"""
@@ -165,6 +175,7 @@ class ReceivedProposalsView(ListView):
     template_name = 'exchanges/exchange_received.html'
     context_object_name = 'proposals'
     ordering = ['-created_at']
+    paginate_by = 2
 
     def get_queryset(self):
         """Фильтрует предложения, где текущий пользователь является получателем"""
