@@ -14,6 +14,7 @@ class SignUpView(CreateView):
     success_url = reverse_lazy('ad_list')
 
     def form_valid(self, form):
+        """Устанавливает текущего пользователя как автора объявления"""
         user = form.save()
         login(self.request, user)
         return redirect(self.success_url)
@@ -26,6 +27,7 @@ class MyAdsView(ListView):
     ordering = ['-created_at']
 
     def get_queryset(self):
+        """Фильтрует объявления по текущему пользователю"""
         return Ad.objects.filter(user=self.request.user)
 
 class AdListView(ListView):
@@ -43,11 +45,13 @@ class AdCreateView(CreateView):
     success_url = reverse_lazy('ad_list')
 
     def dispatch(self, request, *args, **kwargs):
+        """Ограничивает доступ только для авторизованных пользователей"""
         if not request.user.is_authenticated:
             return redirect('/admin/login/')
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        """Устанавливает текущего пользователя как автора объявления"""
         form.instance.user = self.request.user
         return super().form_valid(form)
 
@@ -59,6 +63,7 @@ class AdUpdateView(UpdateView):
     success_url = reverse_lazy('my_ads')
 
     def dispatch(self, request, *args, **kwargs):
+        """Проверяет, что текущий пользователь это автор объявления"""
         obj = self.get_object()
         if request.user != obj.user:
             return redirect('ad_list')
@@ -71,6 +76,7 @@ class AdDeleteView(DeleteView):
     success_url = reverse_lazy('my_ads')
 
     def dispatch(self, request, *args, **kwargs):
+        """Проверяет, что текущий пользователь это автор объявления"""
         obj = self.get_object()
         if request.user != obj.user:
             return redirect('ad_list')
@@ -84,20 +90,24 @@ class ExchangeProposalCreateView(CreateView):
     success_url = '/'  
 
     def form_valid(self, form):
+        """Устанавливает статус 'Ожидает' перед сохранением предложения"""
         form.instance.status = 'Ожидает'
         return super().form_valid(form)
     
     def dispatch(self, request, *args, **kwargs):
+        """Ограничивает доступ только для авторизованных пользователей"""
         if not request.user.is_authenticated:
             return redirect('/admin/login/')
         return super().dispatch(request, *args, **kwargs)
     
     def get_form_kwargs(self):
+        """Передаёт текущего пользователя в форму для фильтрации объявлений"""
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
     
     def get_context_data(self, **kwargs):
+        """Добавляет в контекст выбранное объявление-получатель"""
         context = super().get_context_data(**kwargs)
         receiver_id = self.request.GET.get('receiver')
         if receiver_id:
@@ -108,6 +118,7 @@ class ExchangeProposalCreateView(CreateView):
         return context
     
     def get_initial(self):
+        """Автоматически заполняет поле отправителя"""
         initial = super().get_initial()
         receiver_id = self.request.GET.get('receiver')
         if receiver_id:
@@ -115,13 +126,14 @@ class ExchangeProposalCreateView(CreateView):
         return initial
 
 class ExchangeProposalListView(ListView):
-    """Список предложений обмена с фильтрацией"""
+    """Список всех предложений обмена с фильтрацией по статусу, отправителю и получателю"""
     model = ExchangeProposal
     template_name = 'exchanges/exchange_list.html'
     context_object_name = 'proposals'
     ordering = ['-created_at']
 
     def get_queryset(self):
+        """Применяет фильтры из GET-параметров (status, sender, receiver)"""
         queryset = ExchangeProposal.objects.all()
         status = self.request.GET.get('status')
         sender = self.request.GET.get('sender')
@@ -144,6 +156,7 @@ class SentProposalsView(ListView):
     ordering = ['-created_at']
 
     def get_queryset(self):
+        """Фильтрует предложения, где текущий пользователь является получателем"""
         return ExchangeProposal.objects.filter(ad_sender__user=self.request.user)
 
 class ReceivedProposalsView(ListView):
@@ -154,9 +167,11 @@ class ReceivedProposalsView(ListView):
     ordering = ['-created_at']
 
     def get_queryset(self):
+        """Фильтрует предложения, где текущий пользователь является получателем"""
         return ExchangeProposal.objects.filter(ad_receiver__user=self.request.user)
     
     def post(self, request, *args, **kwargs):
+        """Обрабатывает изменение статуса предложения: принять или отклонить"""
         proposal_id = request.POST.get('proposal_id')
         action = request.POST.get('action')
 
