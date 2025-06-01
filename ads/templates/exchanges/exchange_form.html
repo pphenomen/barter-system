@@ -13,11 +13,11 @@
         <label for="id_ad_receiver">Выберите объявление получателя:</label>
         {{ form.ad_receiver }}
     {% endif %}
-
+    
     <label for="id_comment">Комментарий:</label>
-    {{ form.comment }}
+    <div>{{ form.comment }}</div>
 
-    <button type="submit">Отправить</button>
 </form>
 
+<button type="submit">Отправить</button>
 <a href="{% url 'ad_list' %}">Назад к списку объявлений</a>

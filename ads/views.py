@@ -1,8 +1,32 @@
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 from .models import Ad, ExchangeProposal
 from .forms import AdForm, ExchangeProposalForm
+
+class SignUpView(CreateView):
+    """Регистрация нового пользователя"""
+    form_class = UserCreationForm
+    template_name = 'ads/signup.html'
+    success_url = reverse_lazy('ad_list')
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return redirect(self.success_url)
+
+class MyAdsView(ListView):
+    """Список объявлений текущего пользователя"""
+    model = Ad
+    template_name = 'ads/my_ads.html'
+    context_object_name = 'ads'
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        return Ad.objects.filter(user=self.request.user)
 
 class AdListView(ListView):
     """Показ всех объявлений"""
@@ -32,7 +56,7 @@ class AdUpdateView(UpdateView):
     model = Ad
     form_class = AdForm
     template_name = 'ads/ad_form.html'
-    success_url = reverse_lazy('ad_list')
+    success_url = reverse_lazy('my_ads')
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -44,7 +68,7 @@ class AdDeleteView(DeleteView):
     """Удаление объявления (только автор)"""
     model = Ad
     template_name = 'ads/ad_confirm_delete.html'
-    success_url = reverse_lazy('ad_list')
+    success_url = reverse_lazy('my_ads')
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -111,3 +135,37 @@ class ExchangeProposalListView(ListView):
             queryset = queryset.filter(ad_receiver__user__username=receiver)
 
         return queryset
+
+class SentProposalsView(ListView):
+    """Показать предложения, отправленные текущим пользователем"""
+    model = ExchangeProposal
+    template_name = 'exchanges/exchange_sent.html'
+    context_object_name = 'proposals'
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        return ExchangeProposal.objects.filter(ad_sender__user=self.request.user)
+
+class ReceivedProposalsView(ListView):
+    """Показать предложения, полученные текущим пользователем"""
+    model = ExchangeProposal
+    template_name = 'exchanges/exchange_received.html'
+    context_object_name = 'proposals'
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        return ExchangeProposal.objects.filter(ad_receiver__user=self.request.user)
+    
+    def post(self, request, *args, **kwargs):
+        proposal_id = request.POST.get('proposal_id')
+        action = request.POST.get('action')
+
+        if proposal_id and action in ['Принята', 'Отклонена']:
+            try:
+                proposal = ExchangeProposal.objects.get(pk=proposal_id, ad_receiver__user=request.user)
+                proposal.status = action
+                proposal.save()
+            except ExchangeProposal.DoesNotExist:
+                pass
+
+        return redirect('exchange_received')

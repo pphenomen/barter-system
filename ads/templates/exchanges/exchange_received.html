@@ -1,0 +1,24 @@
+<h1>Полученные предложения</h1>
+
+{% for p in proposals %}
+    <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+        <p><strong>От пользователя:</strong> {{ p.ad_sender.user.username }}</p>
+        <p><strong>Предложение:</strong> {{ p.ad_sender.title }}</p>
+        <p><strong>К вашему объявлению:</strong> {{ p.ad_receiver.title }}</p>
+        <p><strong>Комментарий:</strong> {{ p.comment }}</p>
+        <p><strong>Статус:</strong> {{ p.status }}</p>
+
+        {% if p.status == 'Ожидает' %}
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="proposal_id" value="{{ p.id }}">
+                <button type="submit" name="action" value="Принята">Принять</button>
+                <button type="submit" name="action" value="Отклонена">Отклонить</button>
+            </form>
+        {% endif %}
+    </div>
+{% empty %}
+    <p>Пока нет полученных предложений.</p>
+{% endfor %}
+
+<a href="{% url 'ad_list' %}">Назад к объявлениям</a>

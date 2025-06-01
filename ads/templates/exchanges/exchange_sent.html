@@ -1,0 +1,14 @@
+<h1>Отправленные предложения</h1>
+
+{% for p in proposals %}
+    <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+        <p><strong>Вы предложили:</strong> {{ p.ad_sender.title }}</p>
+        <p><strong>Получателю:</strong> {{ p.ad_receiver.title }} ({{ p.ad_receiver.user.username }})</p>
+        <p><strong>Комментарий:</strong> {{ p.comment }}</p>
+        <p><strong>Статус:</strong> {{ p.status }}</p>
+    </div>
+{% empty %}
+    <p>Вы ещё не делали предложений обмена.</p>
+{% endfor %}
+
+<a href="{% url 'ad_list' %}">Назад к объявлениям</a>
