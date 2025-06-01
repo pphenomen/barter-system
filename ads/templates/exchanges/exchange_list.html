@@ -1,0 +1,12 @@
+<h1>Список предложений обмена</h1>
+
+{% for p in proposals %}
+    <div style="border:1px solid #ccc; padding:10px; margin:10px;">
+        <p><strong>От:</strong> {{ p.ad_sender.title }} ({{ p.ad_sender.user.username }})</p>
+        <p><strong>К:</strong> {{ p.ad_receiver.title }} ({{ p.ad_receiver.user.username }})</p>
+        <p><strong>Комментарий:</strong> {{ p.comment }}</p>
+        <p><strong>Статус:</strong> {{ p.status }}</p>
+    </div>
+{% empty %}
+    <p>Предложений пока нет.</p>
+{% endfor %}

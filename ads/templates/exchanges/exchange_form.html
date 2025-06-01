@@ -1,0 +1,23 @@
+<h1>Создание предложения обмена</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <label for="id_ad_sender">Выберите ваше объявление:</label>
+    {{ form.ad_sender }}
+
+    {% if receiver_ad %}
+        <p>Вы предлагаете обмен на: <strong>{{ receiver_ad.title }} ({{ receiver_ad.user.username }})</strong></p>
+        {{ form.ad_receiver.as_hidden }}
+    {% else %}
+        <label for="id_ad_receiver">Выберите объявление получателя:</label>
+        {{ form.ad_receiver }}
+    {% endif %}
+
+    <label for="id_comment">Комментарий:</label>
+    {{ form.comment }}
+
+    <button type="submit">Отправить</button>
+</form>
+
+<a href="{% url 'ad_list' %}">Назад к списку объявлений</a>

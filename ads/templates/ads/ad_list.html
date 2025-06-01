@@ -5,11 +5,17 @@
 {% for ad in ads %}
     <div style="border:1px solid #ccc; padding:10px; margin:10px;">
         <h2>{{ ad.title }}</h2>
-        <p>{{ ad.description }}</p>
-        <p>Категория: {{ ad.category }} | Состояние: {{ ad.get_condition_display }}</p>
+        <p>Описание: {{ ad.description }}</p>
+        <p>Категория: {{ ad.category }} | Состояние: {{ ad.condition }}</p>
+        {% if ad.image_url %}
+            <img src="{{ ad.image_url }}" alt="Фото" style="max-height: 200px;">
+        {% endif %}
         <p>Автор: {{ ad.user.username }}</p>
         <a href="{% url 'ad_edit' ad.pk %}">Редактировать</a> |
         <a href="{% url 'ad_delete' ad.pk %}">Удалить</a>
+        {% if request.user.is_authenticated and ad.user != request.user %}
+            <a href="{% url 'exchange_create' %}?receiver={{ ad.pk }}">Предложить обмен</a>
+        {% endif %}
     </div>
 {% empty %}
     <p>Объявлений пока нет.</p>
