@@ -9,11 +9,12 @@
         <option value="Отклонена" {% if request.GET.status == "Отклонена" %}selected{% endif %}>Отклонена</option>
     </select>
 
-    <label for="sender">Отправитель:</label>
-    <input type="text" name="sender" value="{{ request.GET.sender }}">
-
-    <label for="receiver">Получатель:</label>
-    <input type="text" name="receiver" value="{{ request.GET.receiver }}">
+    <label>Мои:</label>
+    <select name="mine">
+        <option value="">Все</option>
+        <option value="sent" {% if request.GET.mine == "sent" %}selected{% endif %}>Отправленные</option>
+        <option value="received" {% if request.GET.mine == "received" %}selected{% endif %}>Полученные</option>
+    </select>
 
     <button type="submit">Фильтровать</button>
     <a href="{% url 'exchange_list' %}">Сбросить</a>

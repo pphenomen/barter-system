@@ -147,6 +147,7 @@ class ExchangeProposalListView(ListView):
         status = self.request.GET.get('status')
         sender = self.request.GET.get('sender')
         receiver = self.request.GET.get('receiver')
+        mine = self.request.GET.get('mine')
 
         if status:
             queryset = queryset.filter(status=status)
@@ -155,6 +156,11 @@ class ExchangeProposalListView(ListView):
         if receiver:
             queryset = queryset.filter(ad_receiver__user__username=receiver)
 
+        if mine == 'sent' and self.request.user.is_authenticated:
+            queryset = queryset.filter(ad_sender__user=self.request.user)
+        elif mine == 'received' and self.request.user.is_authenticated:
+            queryset = queryset.filter(ad_receiver__user=self.request.user)
+        
         return queryset
 
 class SentProposalsView(ListView):

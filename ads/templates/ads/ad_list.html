@@ -3,8 +3,6 @@
     {% if request.user.is_authenticated %}
         | <a href="{% url 'my_ads' %}">Мои объявления</a>
         | <a href="{% url 'exchange_list' %}">Предложения по обмену</a>
-        | <a href="{% url 'exchange_sent' %}">Отправленные предложения</a>
-        | <a href="{% url 'exchange_received' %}">Полученные предложения</a>
         | Вы вошли как: {{ request.user.username }}
         | <form action="{% url 'logout' %}" method="post" style="display: inline;">
             {% csrf_token %}

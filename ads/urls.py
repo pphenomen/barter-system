@@ -14,8 +14,6 @@ urlpatterns = [
     # Обмены
     path('exchange/', ExchangeProposalListView.as_view(), name='exchange_list'),
     path('exchange/new/', ExchangeProposalCreateView.as_view(), name='exchange_create'),
-    path('exchange/sent/', SentProposalsView.as_view(), name='exchange_sent'),
-    path('exchange/received/', ReceivedProposalsView.as_view(), name='exchange_received'),
     
     # Вход/регистрация
     path('login/', auth_views.LoginView.as_view(template_name='ads/login.html', next_page='ad_list'), name='login'),
