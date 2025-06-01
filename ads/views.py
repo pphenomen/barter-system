@@ -29,7 +29,20 @@ class MyAdsView(ListView):
 
     def get_queryset(self):
         """Фильтрует объявления по текущему пользователю"""
-        return Ad.objects.filter(user=self.request.user)
+        qs = Ad.objects.filter(user=self.request.user).order_by('-created_at')
+        
+        category = self.request.GET.get('category')
+        condition = self.request.GET.get('condition')
+        search = self.request.GET.get('q')
+
+        if category:
+            qs = qs.filter(category__icontains=category)
+        if condition:
+            qs = qs.filter(condition=condition)
+        if search:
+            qs = qs.filter(title__icontains=search)
+
+        return qs
 
 class AdListView(ListView):
     """Показ всех объявлений"""
@@ -43,6 +56,18 @@ class AdListView(ListView):
         qs = Ad.objects.all().order_by('-created_at')
         if self.request.user.is_authenticated:
             qs = qs.exclude(user=self.request.user)
+        
+        category = self.request.GET.get('category')
+        condition = self.request.GET.get('condition')
+        search = self.request.GET.get('q')
+
+        if category:
+            qs = qs.filter(category__icontains=category)
+        if condition:
+            qs = qs.filter(condition=condition)
+        if search:
+            qs = qs.filter(title__icontains=search)    
+        
         return qs
 
 class AdCreateView(CreateView):

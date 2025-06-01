@@ -16,6 +16,27 @@
 
 <h1>Объявления</h1>
 
+<form method="get" style="margin-bottom: 20px;">
+    <input type="text" name="q" placeholder="Поиск по названию" value="{{ request.GET.q }}">
+    
+    <select name="category">
+        <option value="">Все категории</option>
+        <option value="Транспорт" {% if request.GET.category == 'Транспорт' %}selected{% endif %}>Транспорт</option>
+        <option value="Недвижимость" {% if request.GET.category == 'Недвижимость' %}selected{% endif %}>Недвижимость</option>
+        <option value="Электроника" {% if request.GET.category == 'Электроника' %}selected{% endif %}>Электроника</option>
+        <option value="Личные вещи" {% if request.GET.category == 'Личные вещи' %}selected{% endif %}>Личные вещи</option>
+    </select>
+
+    <select name="condition">
+        <option value="">Любое состояние</option>
+        <option value="Новый" {% if request.GET.condition == 'Новый' %}selected{% endif %}>Новый</option>
+        <option value="Б/у" {% if request.GET.condition == 'Б/у' %}selected{% endif %}>Б/у</option>
+    </select>
+
+    <button type="submit">Фильтровать</button>
+    <a href="{% url 'ad_list' %}">Сбросить</a>
+</form>
+
 {% if request.user.is_authenticated %}
     <div style="margin-bottom: 20px;">
         <a href="{% url 'ad_create' %}">+ Создать объявление</a>
